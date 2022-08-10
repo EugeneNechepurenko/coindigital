@@ -1,0 +1,1378 @@
+enum ROLE {
+  ADMIN: 'admin',
+  INTEMEDIARY: 'intermediary',
+  END_USER: 'end-user',
+}
+
+
+/* * * * * * * * * * * * * * * * * * *  AUTH * * * * * * * * * * * * * * * * * * */
+
+/* * * * LOGIN * * * */
+
+interface ILoginRequestData {
+  email: string;
+  password: string;
+}
+
+interface ILoginSuccessResponseData {
+  refresh_token: string;
+}
+
+interface ILoginFailResponseData {};
+
+
+POST /login
+
+  @ILoginRequestData
+  Request: {
+    email: 'test@test.com',
+    password: '123123',
+  }
+
+  @ILoginSuccessResponseData
+  Response: {
+    status: 200,
+    headers: {
+      'Set-Cookie': 'Authorization=token'
+    }
+    data: {
+      refresh_token: 'refresh_token',
+    }
+  }
+
+  @ILoginFailResponseData
+  Response: {
+    status: 401,
+  }
+
+/* * * * FORGOT PASSWORD * * * */
+
+interface IForgotPasswordRequestData {
+  email: string;
+}
+
+interface IForgotPasswordSuccessResponseData {}
+
+interface IForgotPasswordFailResponseData {}
+
+
+POST /forgot-password
+
+  @IForgotPasswordRequestData
+  Request: {
+    email: 'test@test.com',
+  }
+
+  @IForgotPasswordSuccessResponseData
+  Response: {
+    status: 200,
+  }
+
+  @IForgotPasswordFailResponseData
+  Response: {
+    status: 401,
+  }
+
+
+/* * * * REFRESH TOKEN * * * */
+/*
+  можем рефершить токен с фронта можем с бэка.
+  если с фронта, то следующий эндпойнт нужен.
+  если с бэка, то хэндлим рефреш на бэке.
+*/
+
+interface IRefreshTokenRequestData {
+  refresh_token: string;
+}
+
+interface IRefreshTokenSuccessResponseData {}
+
+interface IRefreshTokenFailResponseData {}
+
+
+POST /refresh-token
+
+  @IRefreshTokenRequestData
+  Request: {
+    refresh_token: 'refresh_token',
+  }
+
+  @IRefreshTokenSuccessResponseData
+  Response: {
+    status: 200,
+    headers: {
+      'Set-Cookie': 'Authorization=new_access_token'
+    },
+  }
+
+  @IRefreshTokenFailResponseData
+  Response: {
+    status: 401,
+  }
+
+/* * * * * * * * * * * * * * * * * * *  AUTH END * * * * * * * * * * * * * * * * * * */
+
+
+/* * * * * * * * * * * * * * * * * * * RELEASE * * * * * * * * * * * * * * * * * * * * */
+
+/* * * * RELEASE * * * */
+
+type Base64 = string;
+type URL = string;
+type Binary = string;
+type AlbumFormat = 'Single' | 'EP' | 'Album' | '';
+type ArtistTypes = 'Primary Artist' | 'Secondary artist' | 'Performer'; // ...
+type PriceCategory = 'budget' | 'mid' | 'full' | 'premium';
+type UnixDate = number;
+type TimeInSeconds = number;
+type LicenseType = 'Creative Commons' | 'Catalog';
+
+
+interface IArtist {
+  id: number;
+  name: string;
+  order: number;
+  types: ArtistTypes[];
+}
+
+interface ITrack {
+  id: number;
+  order: number;
+  remixOrVersion: string;
+  title: string;
+  createdBy: string;
+  artists: IArtist[];
+  primaryGenre: string;
+  secondaryGenre: string;
+  iswcCode: string;
+  publishingRights: {
+    value: string;
+    year: UnixDate;
+  };
+  language: string;
+  isAvaibleSeparately: boolean;
+  startPointTime: TimeInSeconds;
+  notes: string;
+}
+
+interface IReleaseData {
+  id: number;
+  remixOrVersion: string;
+  artists: IArtist[];
+  label: {
+    id: number;
+    name: string;
+  };
+  primaryGenre: string;
+  secondaryGenre: string;
+  language: string;
+  albumFormat: AlbumFormat;
+  upc: string;
+  referenceNumber: string;
+  grId: string;
+  description: string;
+  /* Release info section end  */
+
+  /* Licenses section */
+  priceCategory: PriceCategory;
+  digitalReleaseDate: UnixDate;
+  originalReleaseDate: UnixDate;
+  licenseType: LicenseType;
+  licenseHolder: {
+    year: UnixDate;
+    value: string;
+  };
+  copyrightRecording: {
+    year: UnixDate;
+    value: string;
+  };
+  territories: string;
+  /* Licenses section End */
+
+  /* Tracks section */
+  tracks: ITrack[];
+  /* Tracks section End */
+
+  /* Distribute release section */
+  isDistributed: boolean;
+  /* Distribute release section end */
+}
+
+
+interface ICreateReleaseRequestData {
+  name: string;
+}
+
+interface ICreateReleaseSuccessResponseData {
+  id: number;
+  name: string;
+}
+
+interface ICreateReleaseFailResponseData {
+  error: string;
+}
+
+/*
+  будет вызываться по клику на "create a release": https://www.figma.com/file/EqvhuRzP9pPxiDgYI8ecdG/Coin-Digital?node-id=206%3A13177
+*/
+
+POST /releases
+
+  @ICreateReleaseRequestData
+  Request: {
+    name: 'release name'
+  }
+
+  @ICreateReleaseSuccessResponseData
+  Response: {
+    status: 201,
+    data: {
+      id: 0,
+      name: 'release name'
+    }
+  }
+
+  /*
+    нужно уточнить у клиента можно ли создавать релизы с одинаковым именем.
+    если можно, то этот респонс не нужен.
+  */
+  @ICreateReleaseFailResponseData
+  Response: {
+    status: 400,
+    data: {
+      error: 'Release already exists.',
+    }
+  }
+
+
+interface IReleaseDataShort {
+  id: number;
+  coverArt: URL | null;
+  name: string;
+  artists: IArtist[];
+  primaryGenre: string;
+  label: {
+    id: number;
+    name: string;
+  };
+  upc: {
+    value: string;
+  };
+  trackCount: number; // внутри таблицы есть колонка "Track", это поле для него, за что оно отвечает - нужно спросить клиента. https://www.figma.com/file/EqvhuRzP9pPxiDgYI8ecdG/Coin-Digital?node-id=23%3A1285
+  albumFormat: AlbumFormat;
+  releaseDate: UnixDate;
+  isDistributed: boolean;
+}
+
+type IReadReleasesResponseData =  Array<IReleaseDataShort>
+
+/*
+  будет использоваться для отображения данных в таблице: https://www.figma.com/file/EqvhuRzP9pPxiDgYI8ecdG/Coin-Digital?node-id=23%3A1285
+*/
+
+GET /releases
+
+  Request: {}
+
+  @IReadReleasesResponseData
+  Response: {
+    status: 200,
+    data: [release1, release2,...]
+  }
+
+
+interface IReadReleaseResponseData extends IReleaseData {}
+
+GET /releases/:releaseId
+
+  Request: {}
+
+  @IReadReleaseResponseData
+  Response: {
+    status: 200,
+    data: {
+      id: 0,
+      remixOrVersion: 'remastered',
+      artists: [
+        {
+          id: 229,
+          name: 'Eminem',
+          order: 0,
+          types: ['Primary artist'],
+        },
+        {
+          id: 230,
+          name: 'Dr.Dre',
+          order: 1,
+          types: ['Producer'],
+        },
+        {
+          id: 231,
+          name: 'Juice WRLD',
+          order: 2,
+          types: ['Secondary artist', 'Lyricist', 'feat'],
+        },
+      ],
+      label: {
+        id: 54,
+        name: 'Shady Records',
+      },
+      primaryGenre: 'Hip-Hop',
+      secondaryGenre: 'Hip-Hop/Rap',
+      language: 'english',
+      albumFormat: 'Album',
+      upc: {
+        value: '03600029145';
+        isAutoAssign: false;
+      },
+      referenceNumber: {
+        value: '',
+        isAutoAssign: true,
+      },
+      grId: '0000001489',
+      description: 'very \n nice \n album \n ',
+      priceCategory: 'mid',
+      digitalReleaseDate: 1595503106,
+      originalReleaseDate: 1595503106,
+      licenseType: 'Catalog',
+      licenseHolder: {
+        year: 1658575106,
+        value: 'Dr.Dre',
+      },
+      copyrightRecording: {
+        year: 1658575106;
+        value: 'xz';
+      },
+      territories: 'Entire World',
+      tracks: [
+        {
+          id: 0,
+          order: 0,
+          remixOrVersion: '',
+          title: 'Lose yourself',
+          createdBy: 'Eminem',
+          artists: [
+            {
+              id: 229,
+              name: 'Eminem',
+              order: 0,
+              types: ['Primary artist'],
+            }
+          ],
+          primaryGenre: 'Hip-Hop',
+          secondaryGenre: 'Hip-Hop/Rap',
+          iswcCode: 'T-050246800-1',
+          publishingRights: {
+            value: 'rights',
+            year: 1595503106,
+          },
+          language: 'english',
+          isAvaibleSeparately: false,
+          startPointTime: 0,
+          notes: '',
+        },
+      ],
+      isDistributed: false,
+    }
+  }
+
+
+interface IUpdateReleaseRequestData extends IReleaseData {}
+
+/*
+  будет вызываться по клику на "save" на каждой из 3-х форм: https://www.figma.com/file/EqvhuRzP9pPxiDgYI8ecdG/Coin-Digital?node-id=206%3A12690
+  из минусов: с таким подходом не получится делать валидацию на бэке.
+  можно конечно сделать 3 отдельных эндпойнта для каждой из форм, где каждый эндойнт валидирует свою форму, но это звучит как-то неправильно.
+*/
+
+PUT /releases/:releaseId
+
+  @IUpdateReleaseRequestData
+  Request: {
+    id: 0,
+    remixOrVersion: 'remastered',
+    artists: [
+      {
+        id: 229,
+        name: 'Eminem',
+        order: 0,
+        types: ['Primary artist'],
+      },
+      {
+        id: 230,
+        name: 'Dr.Dre',
+        order: 1,
+        types: ['Producer'],
+      },
+      {
+        id: 231,
+        name: 'Juice WRLD',
+        order: 2,
+        types: ['Secondary artist', 'Lyricist', 'feat'],
+      },
+    ],
+    label: {
+      id: 54,
+      name: 'Shady Records',
+    },
+    primaryGenre: 'Hip-Hop',
+    secondaryGenre: 'Hip-Hop/Rap',
+    language: 'english',
+    albumFormat: 'Album',
+    upc: {
+      value: '03600029145';
+      isAutoAssign: false;
+    },
+    referenceNumber: {
+      value: '',
+      isAutoAssign: true,
+    },
+    grId: '0000001489',
+    description: 'very \n nice \n album \n ',
+    priceCategory: 'mid',
+    digitalReleaseDate: 1595503106,
+    originalReleaseDate: 1595503106,
+    licenseType: 'Catalog',
+    licenseHolder: {
+      year: 1658575106,
+      value: 'Dr.Dre',
+    },
+    copyrightRecording: {
+      year: 1658575106;
+      value: 'xz';
+    },
+    territories: 'Entire World',
+    tracks: [
+      {
+        id: 0,
+        order: 0,
+        remixOrVersion: '',
+        title: 'Lose yourself',
+        createdBy: 'Eminem',
+        artists: [
+          {
+            id: 229,
+            name: 'Eminem',
+            order: 0,
+            types: ['Primary artist'],
+          }
+        ],
+        primaryGenre: 'Hip-Hop',
+        secondaryGenre: 'Hip-Hop/Rap',
+        iswcCode: 'T-050246800-1',
+        publishingRights: {
+          value: 'rights',
+          year: 1595503106,
+        },
+        language: 'english',
+        isAvaibleSeparately: false,
+        startPointTime: 0,
+        notes: '',
+      },
+    ]
+  }
+
+  Response: {
+    status: 200,
+    data: { /* апдейтнутая версия релиза  */ }
+  }
+
+
+POST /releases/distribute/:releaseId
+
+  Request: {}
+
+  Response: {
+    status: 200,
+  }
+
+
+interface IDeleteReleaseRequestData {};
+interface IDeleteReleaseSuccessResponseData {};
+interface IDeleteReleaseFailData {};
+
+/*
+  будет вызывать по клику на "delite release": https://www.figma.com/file/EqvhuRzP9pPxiDgYI8ecdG/Coin-Digital?node-id=206%3A12690
+*/
+
+DELETE /releases/:releaseId
+
+  @IDeleteReleaseRequestData
+  Request: {}
+
+  @IDeleteReleaseSuccessResponseData
+  Response: {
+    status: 204,
+  }
+
+
+
+/* * * * RELEASE COVER ART FILE * * * */
+
+interface ICoverArtUploadRequestData {
+  coverArt: Base64;
+}
+
+interface ICoverArtUploadResponseData {
+  coverArt: URL; // url на минифицированную версию
+}
+
+/*
+  клиент хочет, чтобы при выборе обложки альбома/музыки - файл сразу отправлялся на сервер не дожидаясь когда юзер нажмёт "save".
+  можно конечно использовать тот же endpoint PUT /releases/:releaseId и отправлять файлы через него, но такой запрос будет слишком
+  тяжёлым, чтобы отправлять его на каждое сохранении каждой формы, так что предлагаю добавить отдельные эндпойнты для файлов
+*/
+
+
+POST /releases/cover-art/:releaseId
+
+  @ICoverArtUploadRequestData
+  Request: {
+    coverArt: 'data:image/jpeg;base64,...',
+  }
+
+  @ICoverArtUploadResponseData
+  Response: {
+    status: 200,
+    data: {
+      coverArt: 'http://coindigital.com/public/images/nnjyIrmn.jpeg'
+    }
+  }
+
+
+interface IReadCoverArtRequestData {}
+
+interface IReadCoverArtResponseData {
+  coverArt: URL | null; // url на минифицированную версию
+}
+
+
+GET /releases/cover-art/:releaseId
+
+  @IReadCoverArtRequestData
+  Request: {}
+
+  @IReadCoverArtResponseData
+  Response: {
+    status: 200,
+    data: {
+      coverArt: 'http://coindigital.com/public/images/nnjyIrmn.jpeg'
+    }
+  }
+
+
+interface IUpdateCoverArtRequestData {
+  coverArt: Base64;
+}
+
+interface IUpdateCoverArtResponseData {
+  coverArt: URL;
+}
+
+PUT /releases/cover-art/:releaseId
+
+  @IUpdateCoverArtRequestData
+  Request: {
+    coverArt: 'data:image/jpeg;base64,...'
+  }
+
+  @IUpdateCoverArtResponseData
+  Response: {
+    status: 200,
+    data: {
+      coverArt: 'http://coindigital.com/public/images/nnjyIrmn.jpeg'
+    }
+  }
+
+
+interface IDeleteCoverArtRequestData {}
+interface IDeleteCoverArtSuccessResponse {}
+
+DELETE /release/cover-art/:releaseId
+
+  @IDeleteCoverArtRequestData
+  Request: {}
+
+
+  @IDeleteCoverArtSuccessResponse
+  Response: {
+    status: 204,
+  }
+
+
+
+/* * * * RELEASE TRACK FILES * * * */
+
+type TrackFile = Binary;
+
+type Track = {
+  id: number;
+}
+
+interface IUploadTracksRequestData {
+  tracks: Array<TrackFile>
+}
+
+interface IUploadTracksResponseData {
+  tracks: Array<UploadedTrack>;
+}
+
+POST /releases/tracks/:releaseId
+
+  @IUploadTracksRequestData
+  Request: {
+    tracks: [File, File],
+  }
+
+  @IUploadTracksResponseData
+  Response: {
+    status: 200,
+    data: {
+      tracks: [
+        {
+          id: 0,
+        },
+        {
+          id: 1,
+        }
+      ]
+    }
+  }
+
+
+DELETE /releases/tracks/:releaseId/:trackId
+
+  Request: {}
+
+  Response: {
+    status: 204,
+  }
+
+
+
+/* * * * * * * * * * * * * * * * * * *  RELEASE END * * * * * * * * * * * * * * * * * * * * */
+
+/* * * * * * * * * * * * * * * * * * *  LABEL * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+interface ILabel {
+  name: string;
+  id: number;
+}
+
+interface ICreateLabelRequestData {
+  name: string;
+}
+
+interface ICreateLabelResponseData extends ILabel {}
+
+POST /labels
+
+  @ICreateLabelRequestData
+  Request: {
+    name: 'Label name',
+  }
+
+  @ICreateLabelResponseData
+  Response: {
+    id: 0,
+    name: 'Label name'
+  }
+
+
+interface IReadLabelsRequestData {}
+
+interface IReadLabelsResponseData {
+  labels: Array<ILabel>;
+}
+
+/*
+  будет использоваться для подтягивания options внутрь labels dropdown.
+  https://www.figma.com/file/EqvhuRzP9pPxiDgYI8ecdG/Coin-Digital?node-id=29%3A1842
+*/
+
+GET /labels
+
+  @IReadLabelsRequestData
+  Request: {}
+
+  @IReadLabelsResponseData
+  Response: {
+    data: {
+      labels: [
+        {
+          id: 0,
+          name: 'First label'
+        },
+        {
+          id: 1,
+          name: 'Second label'
+        }
+      ]
+    }
+  }
+
+
+interface IUpdateLabelRequestData {
+  name: string;
+}
+
+interface IUpdateLabelResponseData extends ILabel {}
+
+PUT /labels/:labelId
+
+  @IUpdateLabelRequestData
+  Request: {
+    name: 'new label name'
+  }
+
+  @IUpdateLabelRequestData
+  Response: {
+    data: {
+      id: 0,
+      name: 'new label name',
+    }
+  }
+
+
+/* * * * * * * * * * * * * * * * * * *  LABEL END * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/* * * * * * * * * * * * * * * * * * *  MANAGE STORES * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+type Platform = 'Indian' | 'International';
+
+interface IStore {
+  id: number;
+  name: string;
+  logo?: URL | null;
+  platform: Platform;
+  duePeriodStart: UnixDate;
+  duePeriodEnd: UnixDate;
+}
+
+interface ICreateStoreRequestData extends Omit<IStore, "id" | "logo"> {
+  logo: Base64;
+}
+
+interface ICreateStoreResponseData extends IStore {}
+
+/*
+  будет использоваться для создания магазов тут https://www.figma.com/file/EqvhuRzP9pPxiDgYI8ecdG/Coin-Digital?node-id=152%3A4635
+*/
+
+POST /stores
+
+  @ICreateStoreRequestData
+  Request: {
+    name: 'Amazon',
+    logo: 'data:image/jpeg;base64,...',
+    platform: 'International',
+    duePeriodStart: 1656145095,
+    duePeriodEnd: 1658737095,
+  }
+
+  @ICreateStoreResponseData
+  Response: {
+    status: 200,
+    data: {
+      id: 0,
+      name: 'Amazon',
+      logo: '//localhost:3000/stores/amazon.png',
+      platform: 'International',
+      duePeriodStart: 1656145095,
+      duePeriodEnd: 1658737095,
+    }
+  }
+
+
+interface IReadStoresRequestData {}
+
+type IReadStoresResponseData = Array<IStore>;
+
+GET /stores
+
+  @IReadStoresRequestData
+  Request: {}
+
+  @IReadStoresResponseData
+  Response: {
+    status: 200,
+    data: [
+      {
+        id: 0,
+        name: 'Amazon',
+        logo: '//localhost:3000/stores/amazon.png',
+        platform: 'International',
+        duePeriodStart: 1656145095,
+        duePeriodEnd: 1658737095,
+      },
+      {
+        id: 1,
+        name: 'Spotify',
+        logo: '//localhost:3000/stores/spotify.png',
+        platform: 'International',
+        duePeriodStart: 1656145095,
+        duePeriodEnd: 1658737095,
+      },
+    ]
+  }
+
+
+interface IReadStoreRequestData {}
+
+interface IReadStoreResponseData extends IStore {}
+
+GET /stores/:storeId
+
+  @IReadStoreRequestData
+  Request: {}
+
+  @IReadStoreResponseData
+  Response: {
+    status: 200,
+    data: {
+      id: 0,
+      name: 'Amazon',
+      logo: '//localhost:3000/stores/amazon.png',
+      platform: 'International',
+      duePeriodStart: 1656145095,
+      duePeriodEnd: 1658737095,
+    }
+  }
+
+
+interface IUpdateStoreRequestData extends Omit<IStore, "logo"> {
+  logo: Base64;
+}
+
+interface IUpdateStoreResponseData extends IStore {}
+
+PUT /stores/:storeId
+
+  @IUpdateStoreRequestData
+  Request: {
+    id: 0,
+    name: 'Amazon',
+    logo: 'data:image/jpeg;base64,...',
+    platform: 'International',
+    duePeriodStart: 1656145095,
+    duePeriodEnd: 1658737095,
+  }
+
+  @IUpdateStoreResponseData
+  Response: {
+    status: 200,
+    data: {
+      id: 0,
+      name: 'Amazon',
+      logo: '//localhost:3000/store/amazon.png',
+      platform: 'International',
+      duePeriodStart: 1656145095,
+      duePeriodEnd: 1658737095,
+    }
+  }
+
+
+DELETE /stores/:storeId
+  Request: {}
+
+  Response: {
+    status: 204,
+  }
+
+/* * * * * * * * * * * * * * * * * * *  MANAGE STORES END * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/* * * * * * * * * * * * * * * * * * *  MANAGE USERS * *  * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/* * * * MANAGE USER * * *  */
+
+/* https://www.figma.com/file/EqvhuRzP9pPxiDgYI8ecdG/Coin-Digital?node-id=155%3A4985 */
+
+interface IPayoutStore {
+  id: number; // storeId
+  name: string; // storeName
+  percent: number;
+}
+
+interface IUser {
+  id: number;
+
+  // данные нужны для таблицы "User Management" на этой же странице
+  meta: {
+    monthlyRevenue: number | null;
+    totalSongsCount: number | null;
+    totalRevenue: number | null;
+  }
+
+  account: {
+    createdAt: UnixDate | null;
+    firstLogin: UnixDate | null;
+    lastLogin: UnixDate | null;
+    role: ROLE.ADMIN | ROLE.INTEMEDIARY | ROLE.END_USER;
+    isBlocked: boolean;
+  };
+
+  personal: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    country: string;
+    defaultLanguage: string;
+    city: string;
+    street: string;
+    postalCode: string;
+    contactPhone: string;
+  };
+
+  company: {
+    company: string;
+    companyName: string;
+    fiskalId: number;
+    countryPhone: string;
+    contactPhone: string;
+    panId: number;
+    gstId: number;
+  };
+
+  bank: {
+    accountName: string;
+    accountId: number;
+    isfcCode: string;
+    sortCode: string;
+    swiftCode: string;
+    ibanId: number;
+    countryOfBank: string;
+    bankName: string;
+  };
+
+  // admin only
+  tds: {
+    type: 'automatic' | 'manual' | 'hardcoded'; // hardcoded = 0,1,2,5,10,20
+    value: number | null;
+  };
+
+  payout: {
+    stores: Array<IPayoutStore>;
+    threshold: number;
+  }
+}
+
+interface ICreateUserRequestData extends Omit<IUser, "id"> {};
+
+interface ICreateUserResponseData extends IUser {}
+
+
+POST /users
+
+  @ICreateUserRequestData
+  Request: {
+
+    // админ может создавать: intermediary/end-user
+    // intermediary только end-user'ов
+    // end-user доступа к странице не имеет
+    account: {
+      role: ROLE.END_USER;
+    },
+
+    personal: {
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john.doe@gmail.com',
+      country: 'India',
+      defaultLanguage: 'english',
+      city: 'Kanpur',
+      street: 'street',
+      postalCode: '8841',
+      contactPhone: '+91123123',
+    },
+
+    company: {
+      company: 'Apple',
+      companyName: 'Apple Inc.',
+      fiskalId: 123,
+      countryPhone: '+91',
+      contactPhone: '+91123123123',
+      panId: 842222,
+      gstId: 841111,
+    },
+
+    bank: {
+      accountName: 'name',
+      accountId: 123123,
+      isfcCode: '234234',
+      sortCode: '345345',
+      swiftCode: '456456',
+      ibanId: 567567,
+      countryOfBank: 'India',
+      bankName: 'Bank of India',
+    },
+
+    tds: {
+      type: 'manual',
+      value: 25.5,
+    },
+
+    payout: {
+      stores: [
+        {
+          id: 0,
+          name: 'Amazon',
+          percent: 80
+        },
+        {
+          id: 1,
+          name: 'Apple Music',
+          percent: 75.55,
+        }
+      ],
+      threshold: 50,
+    }
+  }
+
+  @ICreateUserResponseData
+  Response: {
+    status: 200,
+    data: {
+      id: 0,
+
+      account: {
+        createdAt: 165874516,
+        firstLogin: null,
+        lastLogin: null
+        isBlocked: false,
+        role: 'intermediary',
+      },
+
+      personal: {
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@gmail.com',
+        country: 'India',
+        defaultLanguage: 'english',
+        city: 'Kanpur',
+        street: 'street',
+        postalCode: '8841',
+        contactPhone: '+91123123',
+      },
+
+      company: {
+        company: 'Apple',
+        companyName: 'Apple Inc.',
+        fiskalId: 123,
+        countryPhone: '+91',
+        contactPhone: '+91123123123',
+        panId: 842222,
+        gstId: 841111,
+      },
+
+      bank: {
+        accountName: 'name',
+        accountId: 123123,
+        isfcCode: '234234',
+        sortCode: '345345',
+        swiftCode: '456456',
+        ibanId: 567567,
+        countryOfBank: 'India',
+        bankName: 'Bank of India',
+      },
+
+      tds: {
+        type: 'manual',
+        value: 25.5,
+      },
+
+      payout: {
+        stores: [
+          {
+            id: 0,
+            name: 'Amazon',
+            percent: 80
+          },
+          {
+            id: 1,
+            name: 'Apple Music',
+            percent: 75.55,
+          }
+        ],
+        threshold: 50,
+      }
+    }
+  }
+
+
+interface IReadUsersRequestData {}
+type IReadUsersResponseData = Array<IUser>;
+
+// Возвращает всех юзеров привязаных к указаноому userId.
+// У intemediary есть привязанные к нему end-users. при этом запросе должны вернуться его end-users
+// У admin есть intermediary/end-users. при этом запросе должны вернуться его intermediary/end-users.
+// pagination, filter, etc на фронте будет.
+GET /users
+
+  @IReadUsersRequestData
+  Request: {}
+
+  @IReadUsersResponseData
+  Response: {
+    status: 200,
+    data: [
+      {
+        id: 0,
+        role: 'intermediary',
+        ...
+      },
+      {
+        id: 1,
+        role: 'end-user',
+        ...
+      }
+    ]
+  }
+
+
+
+
+interface ICurrentUserRequestData {}
+
+interface ICurrentUserSuccessResponseData extends IUser {}
+
+GET /users/current-user
+
+  @ICurrentUserRequestData
+  Request: {}
+
+  @ICurrentUserSuccessResponseData
+  Response: {
+    status: 200,
+    data: {
+      id: 5,
+
+      account: {
+        createdAt: 165874516,
+        firstLogin: null,
+        lastLogin: null
+        isBlocked: false,
+        role: 'admin',
+      },
+
+      personal: {
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@gmail.com',
+        country: 'India',
+        defaultLanguage: 'english',
+        city: 'Kanpur',
+        street: 'street',
+        postalCode: '8841',
+        contactPhone: '+91123123',
+      },
+
+      company: {
+        company: 'Apple',
+        companyName: 'Apple Inc.',
+        fiskalId: 123,
+        countryPhone: '+91',
+        contactPhone: '+91123123123',
+        panId: 842222,
+        gstId: 841111,
+      },
+
+      bank: {
+        accountName: 'name',
+        accountId: 123123,
+        isfcCode: '234234',
+        sortCode: '345345',
+        swiftCode: '456456',
+        ibanId: 567567,
+        countryOfBank: 'India',
+        bankName: 'Bank of India',
+      },
+
+      tds: {
+        type: 'manual',
+        value: 25.5,
+      },
+
+      payout: {
+        stores: [
+          {
+            id: 0,
+            name: 'Amazon',
+            percent: 80
+          },
+          {
+            id: 1,
+            name: 'Apple Music',
+            percent: 75.55,
+          }
+        ],
+        threshold: 50,
+      }
+    }
+  }
+
+// Update user
+PUT /users/:userId
+  Request: { IUser }
+
+  Response: { UpdatedUser }
+
+// Delete users
+DELETE /users
+            ?id=0
+            &id=1
+            &id=2
+            &id=3
+
+  Request: {}
+
+  Response: {
+    status: 204,
+  }
+
+// Block users
+POST /users/ban
+              ?id=0
+              &id=1
+              &id=2
+              &id=3
+
+Request: {}
+
+Response: {
+  status: 200,
+}
+
+
+/* * * * * * * * * * * * * * * * * * *  MANAGE USERS END * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/* * * * * * * * * * * * * * * * * * *  SALES DATA * * * * * * * * * * * * * * * * * * * * * * * */
+
+interface ITrackPurchaseHistoryItem {
+  id: number;
+  albumName: string;
+  name: string;
+  platform: string;
+  soldDate: UnixDate;
+  grossPrice: number; // цена до вычета всех налогов и комисиий
+  netPrice: number; // цена после вчета налогов и комиссий
+}
+
+interface IReadSalesRequestData {}
+
+type IReadSalesResponseData = Array<ITrackPurchaseHistoryItem>;
+
+/*
+  Возвращает историю покупок треков в указанных магазинах в указанном промежутке времени.
+  id = storeId.
+*/
+
+GET /data/sales
+              ?id=0
+              &id=1
+              &id=2
+              &dateStart=165874852
+              &dateEnd=165897852
+
+  @IReadSalesRequestData
+  Request: {}
+
+  @IReadSalesResponseData
+  Response: {
+    status: 200,
+    data: [
+      {
+        id: 0, // trackId
+        albumName: 'Recovery',
+        name: 'Not afraid', // trackName
+        platform: 'Spotify',
+        soldDate: 1658749571,
+        grossPrice: 0.8, // цена до вычета всех налогов и комисиий
+        netPrice: 0.6, // цена после вчета налогов и комиссий
+      },
+      {
+        id: 1,
+        albumName: 'Recovery',
+        name: 'So bad',
+        platform: 'Spotify',
+        soldDate: 165878751,
+        grossPrice: 0.8,
+        netPrice: 0.6,
+      },
+    ]
+  }
+
+
+GET /data/reports
+GET /data/balances
+
+/* * * * * * * * * * * * * * * * * * *  SALES DATA END * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Artist
+Track
+ReleaseData
+	  id: number;
+      remixOrVersion: string;
+      artists: IArtist[];
+      label: {
+        id: number;
+        name: string;
+      };
+      primaryGenre: string;
+      secondaryGenre: string;
+      language: string;
+      albumFormat: AlbumFormat;
+      upc: string;
+      referenceNumber: string;
+      grId: string;
+      description: string;
+  priceCategory: PriceCategory;
+  digitalReleaseDate: UnixDate;
+  originalReleaseDate: UnixDate;
+  licenseType: LicenseType;
+  licenseHolder: {
+    year: UnixDate;
+    value: string;
+  };
+  copyrightRecording: {
+    year: UnixDate;
+    value: string;
+  };
+  territories: string;
+  tracks: ITrack[];
+  isDistributed: boolean;
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,91 @@
+### users GET list
+GET http://127.0.0.1:8000/api/releases
+Content-Type: application/json
+
+
+### users POST creaete
+POST http://127.0.0.1:8000/api/releases/create
+Content-Type: application/json
+
+{
+  "remixOrVersion": "string",
+  "primaryGenre": "string",
+  "secondaryGenre": "string",
+  "language": "string",
+  "albumFormat": "AlbumFormat",
+  "upc": "string",
+  "referenceNumber": "string",
+  "grId": "string",
+  "description": "string",
+  "priceCategory": "PriceCategory",
+  "digitalReleaseDate": "UnixDate",
+  "originalReleaseDate": "UnixDate",
+  "licenseType": "LicenseType",
+  "territories": "string",
+  "licenseHolderYear": "boolean",
+  "licenseHolderValue": "boolean",
+  "copyrightRecordingYear": "boolean",
+  "copyrightRecordingValue": "boolean",
+
+  "tracks": [
+	{
+	  "order": "number",
+	  "remixOrVersion": "string",
+	  "title": "string",
+	  "createdBy": "string",
+	  "artists": "IArtist[]",
+	  "primaryGenre": "string",
+	  "secondaryGenre": "string",
+	  "iswcCode": "string",
+	  "publishingRights": "test",
+	  "language": "string",
+	  "isAvaibleSeparately": "boolean",
+	  "startPointTime": "TimeInSeconds",
+	  "notes": "string",
+	  "sold": 5
+	},
+	{
+	  "order": "number",
+	  "remixOrVersion": "string",
+	  "title": "string",
+	  "createdBy": "string",
+	  "artists": "IArtist[]",
+	  "primaryGenre": "string",
+	  "secondaryGenre": "string",
+	  "iswcCode": "string",
+	  "publishingRights": "test",
+	  "language": "string",
+	  "isAvaibleSeparately": "boolean",
+	  "startPointTime": "TimeInSeconds",
+	  "notes": "string",
+	  "sold": 5
+	}
+  ],
+  "artists": [
+	{
+	  "name": "string",
+	  "order": "number",
+	  "types": "ArtistTypes"
+	},
+	{
+	  "name": "string",
+	  "order": "number",
+	  "types": "ArtistTypes"
+	}
+  ],
+  "label": {
+	"name": "string"
+  }
+}
+
+### users GET id
+GET http://127.0.0.1:8000/api/releases/5
+Content-Type: application/json
+
+### users POST update
+POST http://127.0.0.1:8000/api/releases/5/update
+Content-Type: application/json
+
+{
+  "name": "4444"
+}

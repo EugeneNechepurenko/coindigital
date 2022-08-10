@@ -1,0 +1,138 @@
+{
+  "Artist": {
+    "id": "number",
+    "name": "string",
+    "order": "number",
+    "types": "ArtistTypes"
+  },
+  "Track": {
+    "id": "number",
+    "order": "number",
+    "remixOrVersion": "string",
+    "title": "string",
+    "createdBy": "string",
+    "artists": "IArtist[]",
+    "primaryGenre": "string",
+    "secondaryGenre": "string",
+    "iswcCode": "string",
+    "publishingRights": {
+      "value": "string",
+      "year": "UnixDate"
+    },
+    "language": "string",
+    "isAvaibleSeparately": "boolean",
+    "startPointTime": "TimeInSeconds",
+    "notes": "string"
+  },
+  "User": {
+    "id": "number",
+    "meta": {
+      "monthlyRevenue": "number | null",
+      "totalSongsCount": "number | null",
+      "totalRevenue": "number | null"
+    },
+    "account": {
+      "createdAt": "UnixDate | null",
+      "firstLogin": "UnixDate | null",
+      "lastLogin": "UnixDate | null",
+      "role": "ROLE.ADMIN | ROLE.INTEMEDIARY | ROLE.END_USER",
+      "isBlocked": "boolean"
+    },
+    "personal": {
+      "firstName": "string",
+      "lastName": "string",
+      "email": "string",
+      "country": "string",
+      "defaultLanguage": "string",
+      "city": "string",
+      "street": "string",
+      "postalCode": "string",
+      "contactPhone": "string"
+    },
+    "company": {
+      "company": "string",
+      "companyName": "string",
+      "fiskalId": "number",
+      "countryPhone": "string",
+      "contactPhone": "string",
+      "panId": "number",
+      "gstId": "number"
+    },
+    "bank": {
+      "accountName": "string",
+      "accountId": "number",
+      "isfcCode": "string",
+      "sortCode": "string",
+      "swiftCode": "string",
+      "ibanId": "number",
+      "countryOfBank": "string",
+      "bankName": "string"
+    },
+    "tds": {
+      "type": "'automatic' | 'manual' | 'hardcoded' // hardcoded = 0,1,2,5,10,20",
+      "value": "number | null"
+    },
+    "payout": {
+      "stores": "Array<IPayoutStore>",
+      "threshold": "number"
+    }
+  },
+  "PayoutStore": {
+    "id": "number",
+    "name": "string",
+    "percent": "number"
+  },
+  "Store": {
+    "id": "number",
+    "name": "string",
+    "logo": "URL | null",
+    "platform": "Platform",
+    "duePeriodStart": "UnixDate",
+    "duePeriodEnd": "UnixDate"
+  },
+  "Label": {
+    "name": "string",
+    "id": "number"
+  },
+  "Release": {
+    "id": "number",
+    "remixOrVersion": "string",
+    "primaryGenre": "string",
+    "secondaryGenre": "string",
+    "language": "string",
+    "albumFormat": "AlbumFormat",
+    "upc": "string",
+    "referenceNumber": "string",
+    "grId": "string",
+    "description": "string",
+    "priceCategory": "PriceCategory",
+    "digitalReleaseDate": "UnixDate",
+    "originalReleaseDate": "UnixDate",
+    "licenseType": "LicenseType",
+    "territories": "string",
+    "licenseHolderYear": "boolean",
+    "licenseHolderValue": "boolean",
+    "copyrightRecordingYear": "boolean",
+    "copyrightRecordingValue": "boolean",
+
+    "tracks": "ITrack",
+    "artists": "IArtist",
+    "label": {
+      "id": "number",
+      "name": "string"
+    }
+  },
+  "ITrackPurchaseHistoryItem": {
+    "id": "number",
+    "albumName": "string",
+    "name": "string",
+    "platform": "string",
+    "soldDate": "UnixDate",
+    "grossPrice": "number",
+    "netPrice": "number"
+  }
+}
+
+
+
+

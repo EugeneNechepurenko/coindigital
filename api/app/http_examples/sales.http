@@ -1,0 +1,7 @@
+### users GET list
+GET http://127.0.0.1:8000/api/sales/chanelRevenue
+Content-Type: application/json
+
+### users GET list
+GET http://127.0.0.1:8000/api/sales/chanelRevenueTotal
+Content-Type: application/json

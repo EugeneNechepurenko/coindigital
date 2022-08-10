@@ -1,0 +1,41 @@
+### tracks GET list
+GET http://127.0.0.1:8000/api/tracks
+Content-Type: application/json
+
+### tracks POST creaete
+POST http://127.0.0.1:8000/api/tracks/create
+Content-Type: application/json
+
+{
+  "order": "test3",
+  "remixOrVersion": "test3",
+  "createdBy": "test3",
+  "title": "test3",
+  "primaryGenre": "test3",
+  "secondaryGenre": "test3",
+  "iswcCode": "test3",
+  "publishingRights": "test3",
+  "language": "test3",
+  "isAvaibleSeparately": "test3",
+  "startPointTime": "test3",
+  "notes": "test3",
+  "sold": 5
+}
+
+<> 2022-08-09T173727.200.json
+<> 2022-08-09T173632.200.json
+<> 2022-08-09T173540.500.html
+<> 2022-08-09T173530.200.html
+<> 2022-08-09T173435.500.html
+
+### users GET id
+GET http://127.0.0.1:8000/api/tracks/5
+Content-Type: application/json
+
+### users POST update
+POST http://127.0.0.1:8000/api/tracks/5/update
+Content-Type: application/json
+
+{
+  "name": "4444"
+}

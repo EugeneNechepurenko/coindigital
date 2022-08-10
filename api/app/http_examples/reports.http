@@ -1,0 +1,36 @@
+
+### report chanel-revenue
+GET http://127.0.0.1:8000/api/reports/chanel-revenue
+Content-Type: application/json
+
+### report chanel-revenue-total
+GET http://127.0.0.1:8000/api/reports/chanel-revenue-total
+Content-Type: application/json
+
+### report top-tracks
+GET http://127.0.0.1:8000/api/reports/top-tracks
+Content-Type: application/json
+
+### report top-tracks-total
+GET http://127.0.0.1:8000/api/reports/top-tracks-total
+Content-Type: application/json
+
+### report total-songs
+GET http://127.0.0.1:8000/api/reports/total-songs
+Content-Type: application/json
+
+### report royalty-report
+GET http://127.0.0.1:8000/api/reports/royalty-report
+Content-Type: application/json
+
+### report amount-payable
+GET http://127.0.0.1:8000/api/reports/amount-payable
+Content-Type: application/json
+
+### report tds-amount
+GET http://127.0.0.1:8000/api/reports/tds-amount
+Content-Type: application/json
+
+### report monthly-expenses
+GET http://127.0.0.1:8000/api/reports/monthly-expenses
+Content-Type: application/json
